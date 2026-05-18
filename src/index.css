@@ -1,1 +1,74 @@
 @import "tailwindcss";
+
+:root {
+  /* Fonts */
+  --font-display: 'Orbitron', monospace;     /* Level numbers, rank names, titles */
+  --font-body: 'Sora', sans-serif;           /* All body text, UI labels */
+  --font-mono: 'JetBrains Mono', monospace;  /* Stats, numbers, dates */
+
+  /* Backgrounds */
+  --bg-primary: #0A0A0F;      /* Near-black, slightly blue-tinted */
+  --bg-card: #12121A;          /* Card surfaces */
+  --bg-elevated: #1A1A26;      /* Modals, elevated surfaces */
+  --bg-input: #1E1E2E;         /* Input fields */
+
+  /* Text */
+  --text-primary: #E8E8F0;     /* Primary text */
+  --text-secondary: #8888AA;   /* Subdued text */
+  --text-muted: #44445A;       /* Very muted */
+
+  /* Accent (default: amber/gold — hunter energy) */
+  --accent-primary: #F59E0B;
+  --accent-glow: rgba(245, 158, 11, 0.3);
+
+  /* Ranks */
+  --rank-e: #6B7280;
+  --rank-d: #22C55E;
+  --rank-c: #3B82F6;
+  --rank-b: #A855F7;
+  --rank-a: #F59E0B;
+  --rank-s: #EF4444;
+  --rank-ss: #F97316;
+  --rank-sss: #FFFFFF;
+
+  /* Semantic */
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --info: #3B82F6;
+
+  /* XP Bar gradient */
+  --xp-bar: linear-gradient(90deg, #3B82F6, #A855F7, #F59E0B);
+}
+
+@theme {
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-card: var(--bg-card);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-input: var(--bg-input);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  --color-accent-primary: var(--accent-primary);
+  --color-accent-glow: var(--accent-glow);
+
+  --color-rank-e: var(--rank-e);
+  --color-rank-d: var(--rank-d);
+  --color-rank-c: var(--rank-c);
+  --color-rank-b: var(--rank-b);
+  --color-rank-a: var(--rank-a);
+  --color-rank-s: var(--rank-s);
+  --color-rank-ss: var(--rank-ss);
+  --color-rank-sss: var(--rank-sss);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+}
