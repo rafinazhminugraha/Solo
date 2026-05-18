@@ -104,7 +104,10 @@ export function DashboardScreen({ onNavigate }: DashboardScreenProps) {
         <CheckInButton onOpenModal={() => setIsCheckInOpen(true)} />
 
         {/* Radar collapsed metrics */}
-        <StatsRadarCollapsed statPoints={stats.statPoints} />
+        <StatsRadarCollapsed
+          statPoints={stats.statPoints}
+          onViewDetails={() => onNavigate('stats')}
+        />
 
         {/* Horizontal unlocked achievements */}
         <AchievementsRow earnedAchievements={earnedAchievements} />

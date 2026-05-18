@@ -58,6 +58,7 @@ export interface GameStore extends GameState {
   updateSettings: (partial: Partial<UserSettings>) => void;
   resetStreak: () => void;
   fullReset: () => void;
+  updateQuestName: (name: string) => void;
 }
 
 const INITIAL_STATE: GameState = {
@@ -336,6 +337,18 @@ export const useGameStore = create<GameStore>()(
       fullReset: () => {
         set(() => INITIAL_STATE);
       },
+
+      updateQuestName: (name: string) => {
+        set((state) => {
+          if (!state.quest) return {};
+          return {
+            quest: {
+              ...state.quest,
+              name,
+            },
+          };
+        });
+      },
     }),
     {
       name: 'solo-quest-v1',
@@ -349,6 +362,10 @@ export const useGameStore = create<GameStore>()(
     }
   )
 );
+
+if (typeof window !== 'undefined') {
+  (window as any).useGameStore = useGameStore;
+}
 
 /**
  * Derived selectors hook that extracts and calculates reactive runtime PlayerStats

@@ -156,7 +156,7 @@ export function RankUpCeremony() {
               {/* Sub-text stats */}
               <p className="font-[family-name:var(--font-body)] text-xs text-[var(--text-secondary)] leading-relaxed max-w-[280px]">
                 You have checked in {stats.totalCheckIns} {stats.totalCheckIns === 1 ? 'time' : 'times'}. Your consistency is{' '}
-                <strong className="text-[var(--text-primary)]">{stats.consistency}%</strong>.
+                <strong className="text-[var(--text-primary)]">{stats.consistencyScore}%</strong>.
               </p>
             </motion.div>
           )}
