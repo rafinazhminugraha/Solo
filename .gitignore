@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+SOLO_QUEST_AI_WORKFLOW.md
+SOLO_QUEST_PRD.md
