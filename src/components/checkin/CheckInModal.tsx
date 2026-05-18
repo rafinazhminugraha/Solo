@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore, useComputedStats } from '../../store/useGameStore';
 import { STAT_DEFINITIONS } from '../../constants/stats';
+import { ACHIEVEMENT_DEFINITIONS } from '../../constants/achievements';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { RewardScreen } from './RewardScreen';
 import { checkFreezeEligibility } from '../../lib/streaks';
 import { getTodayDateString } from '../../lib/dates';
-import type { StatKey } from '../../store/types';
+import type { StatKey, AchievementDefinition } from '../../store/types';
 
 interface CheckInModalProps {
   isOpen: boolean;
@@ -45,6 +46,8 @@ export function CheckInModal({ isOpen, onClose }: CheckInModalProps) {
     xpEarned: number;
     prevStreak: number;
     newStreak: number;
+    newAchievements: AchievementDefinition[];
+    milestoneBonus: number | null;
   } | null>(null);
 
   const today = getTodayDateString();
@@ -86,11 +89,26 @@ export function CheckInModal({ isOpen, onClose }: CheckInModalProps) {
     const lastCheckIn = updatedState.checkIns[updatedState.checkIns.length - 1];
     const xpEarned = lastCheckIn ? lastCheckIn.xpEarned : 100;
 
+    // Calculate newly unlocked achievements (earned in the last 4 seconds)
+    const now = Date.now();
+    const newlyEarned = updatedState.earnedAchievements
+      .filter((ea) => now - ea.earnedAt < 4000)
+      .map((ea) => {
+        return ACHIEVEMENT_DEFINITIONS.find((def) => def.id === ea.achievementId);
+      })
+      .filter((def): def is AchievementDefinition => !!def);
+
+    // Find milestone bonus
+    const milestoneBonus =
+      lastCheckIn?.bonusEvents.find((e) => e.type === 'streak_milestone')?.xp || null;
+
     // Save reward metadata and show the Reward Screen overlay
     setRewardData({
       xpEarned,
       prevStreak,
       newStreak,
+      newAchievements: newlyEarned,
+      milestoneBonus,
     });
     setStep(4);
   };
@@ -147,6 +165,8 @@ export function CheckInModal({ isOpen, onClose }: CheckInModalProps) {
           xpEarned={rewardData.xpEarned}
           prevStreak={rewardData.prevStreak}
           newStreak={rewardData.newStreak}
+          newAchievements={rewardData.newAchievements}
+          milestoneBonus={rewardData.milestoneBonus}
           onDismiss={handleClose}
         />
       )}
@@ -283,7 +303,7 @@ function Step3Note({ note, setNote, prevStep, handleSubmit }: StepProps) {
           className="w-full bg-[var(--bg-input)] text-[var(--text-primary)] font-[family-name:var(--font-body)] text-sm p-3.5 rounded-xl border border-white/10 focus:outline-none focus:border-[var(--accent-primary)] resize-none transition-colors"
         />
         <div className="flex justify-end font-[family-name:var(--font-mono)] text-[10px] text-[var(--text-muted)] mt-1">
-          {note.length} / 200
+          {200 - note.length} remaining
         </div>
       </div>
 

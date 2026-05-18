@@ -1,33 +1,68 @@
 import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useGameStore } from '../../store/useGameStore';
-import { ACHIEVEMENT_DEFINITIONS } from '../../constants/achievements';
 import { Modal } from '../ui/Modal';
+import type { AchievementDefinition } from '../../store/types';
 
 interface RewardScreenProps {
   xpEarned: number;
-  prevStreak: number;
   newStreak: number;
+  prevStreak: number;
+  newAchievements: AchievementDefinition[];
+  milestoneBonus: number | null;
   onDismiss: () => void;
 }
 
-export function RewardScreen({ xpEarned, prevStreak, newStreak, onDismiss }: RewardScreenProps) {
-  const checkIns = useGameStore((state) => state.checkIns);
-  const earnedAchievements = useGameStore((state) => state.earnedAchievements);
+// 1. Slot machine digit rolling column subcomponent
+function DigitColumn({ digit }: { digit: number }) {
+  const digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  const digitHeight = 40; // 40px height matching text size
+
+  return (
+    <div className="h-10 overflow-hidden relative w-6 flex justify-center">
+      <motion.div
+        initial={{ y: 0 }}
+        animate={{ y: -digit * digitHeight }}
+        transition={{ type: 'spring', stiffness: 90, damping: 14, mass: 0.8 }}
+        className="flex flex-col text-4xl font-extrabold text-[var(--text-primary)] font-[family-name:var(--font-mono)]"
+      >
+        {digits.map((d) => (
+          <span key={d} className="h-10 flex items-center justify-center select-none">
+            {d}
+          </span>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
+function SlotMachineStreak({ value }: { value: number }) {
+  const digitsArray = String(value).split('').map(Number);
+  return (
+    <div className="flex items-center gap-0.5 justify-center">
+      {digitsArray.map((d, index) => (
+        <DigitColumn key={index} digit={d} />
+      ))}
+    </div>
+  );
+}
+
+export function RewardScreen({
+  xpEarned,
+  newStreak,
+  prevStreak,
+  newAchievements,
+  milestoneBonus,
+  onDismiss,
+}: RewardScreenProps) {
   const pendingCeremony = useGameStore((state) => state.pendingCeremony);
+  
+  // Set different countdown limit depending on if a level-up ceremony is queued
+  const isLevelUpQueued = pendingCeremony?.type === 'level_up';
+  const duration = isLevelUpQueued ? 1000 : 3000;
+  const [timeLeft, setTimeLeft] = useState(duration);
 
-  const [counterValue, setCounterValue] = useState(prevStreak);
-  const [timeLeft, setTimeLeft] = useState(3000); // 3 seconds countdown
-
-  // 1. Slot machine count animation for streak
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setCounterValue(newStreak);
-    }, 600);
-    return () => clearTimeout(timer);
-  }, [newStreak]);
-
-  // 2. Countdown progress countdown
+  // 2. Main Countdown loop
   useEffect(() => {
     const intervalTime = 50;
     const interval = setInterval(() => {
@@ -42,21 +77,9 @@ export function RewardScreen({ xpEarned, prevStreak, newStreak, onDismiss }: Rew
     }, intervalTime);
 
     return () => clearInterval(interval);
-  }, [onDismiss]);
+  }, [onDismiss, duration]);
 
-  // 3. Find newly earned achievements (earned in the last 4 seconds)
-  const now = Date.now();
-  const newlyEarned = earnedAchievements
-    .filter((ea) => now - ea.earnedAt < 4000)
-    .map((ea) => ACHIEVEMENT_DEFINITIONS.find((def) => def.id === ea.achievementId))
-    .filter((def): def is NonNullable<typeof def> => !!def);
-
-  // 4. Find if a milestone bonus occurred on the latest check-in
-  const latestCheckIn = checkIns[checkIns.length - 1];
-  const milestoneBonus =
-    latestCheckIn?.bonusEvents.find((e) => e.type === 'streak_milestone')?.xp || null;
-
-  // Render a lovely emoji for achievement slide-ins
+  // Map achievement icon emoji based on id
   const getAchievementEmoji = (id: string) => {
     const emojis: Record<string, string> = {
       'A-01': '🩸', 'A-02': '🛡️', 'A-03': '🗓️', 'A-04': '🚀', 'A-05': '💯',
@@ -74,50 +97,39 @@ export function RewardScreen({ xpEarned, prevStreak, newStreak, onDismiss }: Rew
         onClick={onDismiss}
         className="w-full h-full min-h-screen bg-[#0A0A0F]/98 flex flex-col items-center justify-center p-6 text-center select-none cursor-pointer relative overflow-hidden font-[family-name:var(--font-body)]"
       >
-        {/* Particle Glow background */}
+        {/* Decorative Radial Background */}
         <div className="absolute inset-0 blur-3xl opacity-20 pointer-events-none">
-          <div className="absolute w-[300px] h-[300px] rounded-full bg-[var(--accent-primary)] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute w-[320px] h-[320px] rounded-full bg-[var(--accent-primary)] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
         </div>
 
         <div className="z-10 flex flex-col items-center max-w-sm w-full gap-8">
           
-          {/* XP Burst Indicator */}
+          {/* XP Burst Display */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: [0.8, 1.35, 1.0], opacity: 1 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
             className="flex flex-col items-center gap-1"
           >
             <span className="font-[family-name:var(--font-display)] text-xs tracking-widest text-[var(--text-secondary)] font-semibold uppercase">
-              DAILY REWARD SECURED
+              REWARD SECURED
             </span>
-            <h1 className="font-[family-name:var(--font-display)] text-6xl font-black text-[var(--accent-primary)] drop-shadow-[0_0_15px_var(--accent-glow)] select-none">
+            <h1 className="font-[family-name:var(--font-display)] text-5xl font-black text-[var(--accent-primary)] drop-shadow-[0_0_15px_rgba(245,158,11,0.4)] select-none">
               +{xpEarned} XP
             </h1>
           </motion.div>
 
-          {/* Flame Streak Indicator */}
+          {/* Flame & Slot Machine Streak digits indicator */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.4 }}
+            transition={{ delay: 0.15, duration: 0.4 }}
             className="flex flex-col items-center bg-white/5 border border-white/5 px-6 py-4 rounded-2xl w-full"
           >
             <div className="flex items-center gap-2">
               <span className="text-3xl select-none">🔥</span>
-              <AnimatePresence mode="popLayout">
-                <motion.span
-                  key={counterValue}
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -20, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                  className="font-[family-name:var(--font-mono)] text-4xl font-extrabold text-[var(--text-primary)]"
-                >
-                  {counterValue}
-                </motion.span>
-              </AnimatePresence>
-              <span className="font-[family-name:var(--font-display)] text-sm font-bold text-[var(--text-secondary)] tracking-wider">
+              <SlotMachineStreak value={newStreak} />
+              <span className="font-[family-name:var(--font-display)] text-sm font-bold text-[var(--text-secondary)] tracking-wider ml-1">
                 DAY STREAK
               </span>
             </div>
@@ -128,17 +140,17 @@ export function RewardScreen({ xpEarned, prevStreak, newStreak, onDismiss }: Rew
             )}
           </motion.div>
 
-          {/* Milestone Bonus Award Announcement */}
-          {milestoneBonus !== null && (
+          {/* Streak Milestone Bonus Card */}
+          {milestoneBonus !== null && milestoneBonus > 0 && (
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.4, type: 'spring' }}
+              transition={{ delay: 0.35, type: 'spring', stiffness: 150 }}
               className="w-full bg-gradient-to-r from-amber-500/10 via-yellow-500/15 to-amber-500/10 border border-amber-500/30 p-4 rounded-xl flex flex-col gap-1 items-center justify-center select-none"
             >
               <span className="text-xl">🌟</span>
               <span className="font-[family-name:var(--font-display)] text-xs font-bold text-amber-300 tracking-wider">
-                STREAK MILESTONE REACHED!
+                🔥 {newStreak} DAY STREAK MILESTONE!
               </span>
               <span className="font-[family-name:var(--font-mono)] text-sm font-black text-amber-400">
                 +{milestoneBonus} BONUS XP AWARDED
@@ -146,15 +158,15 @@ export function RewardScreen({ xpEarned, prevStreak, newStreak, onDismiss }: Rew
             </motion.div>
           )}
 
-          {/* Achievement unlocked notification slide-in */}
-          {newlyEarned.length > 0 && (
+          {/* Slide-in newly unlocked achievements */}
+          {newAchievements.length > 0 && (
             <div className="flex flex-col gap-2 w-full mt-2">
-              {newlyEarned.map((ach) => (
+              {newAchievements.map((ach, i) => (
                 <motion.div
                   key={ach.id}
                   initial={{ x: 300, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  transition={{ type: 'spring', damping: 15 }}
+                  transition={{ type: 'spring', damping: 14, stiffness: 120, delay: 0.3 + i * 0.1 }}
                   className="w-full bg-amber-500/10 border border-amber-400/25 p-3 rounded-xl flex items-center gap-3 text-left"
                 >
                   <span className="text-2xl shrink-0 select-none">
@@ -174,16 +186,16 @@ export function RewardScreen({ xpEarned, prevStreak, newStreak, onDismiss }: Rew
           )}
         </div>
 
-        {/* Footer info & Tap instructions */}
+        {/* Dismiss Instruction label */}
         <span className="absolute bottom-10 text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-widest select-none z-10">
-          TAP ANYWHERE TO CONTINUE
+          {isLevelUpQueued ? 'PREPARING LEVEL UP...' : 'TAP ANYWHERE TO CONTINUE'}
         </span>
 
-        {/* 3s Visual Progress Bar at bottom */}
+        {/* Progress Countdown indicators */}
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/5 z-10 pointer-events-none">
           <motion.div
             className="h-full bg-[var(--accent-primary)]"
-            style={{ width: `${(timeLeft / 3000) * 100}%` }}
+            style={{ width: `${(timeLeft / duration) * 100}%` }}
           />
         </div>
       </div>
