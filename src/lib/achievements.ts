@@ -1,5 +1,5 @@
 import { ACHIEVEMENT_DEFINITIONS } from '../constants/achievements';
-import { GameState, CheckIn, StatKey, RankKey, EarnedAchievement, AchievementDefinition } from '../store/types';
+import type { GameState, CheckIn, StatKey, RankKey, EarnedAchievement, AchievementDefinition } from '../store/types';
 
 /**
  * Aggregates all statsTagged across all logged check-ins to compute lifetime stat points.
@@ -30,9 +30,9 @@ export function computeStatPoints(checkIns: CheckIn[]): Record<StatKey, number> 
  */
 export function checkAchievements(
   state: GameState,
-  computedStats: Record<StatKey, number>,
-  currentLevel: number,
-  currentRank: RankKey
+  _computedStats: Record<StatKey, number>,
+  _currentLevel: number,
+  _currentRank: RankKey
 ): AchievementDefinition[] {
   const earnedIds = new Set(state.earnedAchievements.map((ea) => ea.achievementId));
 

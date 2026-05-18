@@ -1,4 +1,4 @@
-import { RankDefinition } from '../store/types';
+import type { RankDefinition } from '../store/types';
 
 export const RANK_DEFINITIONS: readonly RankDefinition[] = [
   {

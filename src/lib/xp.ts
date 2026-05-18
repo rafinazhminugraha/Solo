@@ -1,4 +1,4 @@
-import { StreakState } from '../store/types';
+import type { StreakState } from '../store/types';
 
 /**
  * Calculates the multiplier for a given streak.

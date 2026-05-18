@@ -1,5 +1,5 @@
 import { RANK_DEFINITIONS } from '../constants/ranks';
-import { RankKey, RankDefinition } from '../store/types';
+import type { RankKey, RankDefinition } from '../store/types';
 
 /**
  * Ordered sequence of player ranks from lowest to highest.

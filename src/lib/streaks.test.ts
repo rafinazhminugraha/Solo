@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { StreakState } from '../store/types';
+import type { StreakState } from '../store/types';
 import {
   calculateNewStreakState,
   checkFreezeEligibility,

@@ -1,4 +1,4 @@
-import { StatKey, QuestCategory } from '../store/types';
+import type { StatKey, QuestCategory } from '../store/types';
 
 export interface StatDefinition {
   readonly key: StatKey;

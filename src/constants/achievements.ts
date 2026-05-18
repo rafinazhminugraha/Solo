@@ -1,4 +1,4 @@
-import { AchievementDefinition, GameState, StatKey } from '../store/types';
+import type { AchievementDefinition, GameState, StatKey } from '../store/types';
 
 // Helper functions for self-contained checkCondition calculations
 

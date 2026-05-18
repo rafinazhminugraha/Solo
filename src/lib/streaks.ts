@@ -1,5 +1,5 @@
 import { addDays, parseISO, format } from 'date-fns';
-import { StreakState } from '../store/types';
+import type { StreakState } from '../store/types';
 import { isConsecutiveDay, getDaysDifference } from './dates';
 
 /**

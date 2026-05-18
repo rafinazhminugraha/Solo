@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { GameState, CheckIn, Quest } from '../store/types';
+import type { GameState, CheckIn, Quest } from '../store/types';
 import {
   computeStatPoints,
   checkAchievements,
@@ -37,6 +37,7 @@ describe('Achievements Evaluation Engine', () => {
       reminderTime: null,
       reminderEnabled: false,
     },
+    bonusXPEvents: [],
   };
 
   describe('computeStatPoints', () => {

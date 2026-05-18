@@ -6,7 +6,7 @@ import {
   isComebackActive,
   applyComebackBonus,
 } from './xp';
-import { StreakState } from '../store/types';
+import type { StreakState } from '../store/types';
 
 describe('XP Calculation Rules', () => {
   describe('calculateStreakMultiplier', () => {

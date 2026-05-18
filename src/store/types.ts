@@ -99,6 +99,7 @@ export interface GameState {
   hasCompletedOnboarding: boolean;
   pendingCeremony: PendingCeremony | null;  // Level-up or rank-up awaiting display
   settings: UserSettings;
+  bonusXPEvents: BonusEvent[];      // One-time bonuses not tied to check-ins
 }
 
 // Derived runtime game stats
